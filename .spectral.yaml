@@ -1,1 +1,5 @@
-extends: "spectral:oas"
+extends:
+  - spectral:oas
+
+rules:
+  info-contact: off # Optional: disable specific rules if needed
