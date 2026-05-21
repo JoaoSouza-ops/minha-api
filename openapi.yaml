@@ -1,0 +1,110 @@
+openapi: "3.0.3"
+info:
+  title: "API Almoxarifado - Patrimônios"
+  version: "1.0.0"
+  description: "Especificação API-First para o módulo de gestão de patrimônios."
+servers:
+  - url: "https://dev-api.almoxarifado.gov.br/v1"
+    description: "Ambiente de Desenvolvimento"
+paths:
+  /patrimonios:
+    get:
+      summary: "Listar patrimônios"
+      operationId: "listarPatrimonios"
+      tags: ["Patrimônios"]
+      responses:
+        "200":
+          description: "Lista de patrimônios"
+    post:
+      summary: "Cadastrar patrimônio"
+      operationId: "criarPatrimonio"
+      tags: ["Patrimônios"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatrimonioInput"
+      responses:
+        "201":
+          description: "Patrimônio registrado com sucesso"
+        "400":
+          description: "Dados de entrada inválidos"
+
+  /patrimonios/{codigo}:
+    get:
+      summary: "Buscar patrimônio específico"
+      operationId: "buscarPatrimonio"
+      tags: ["Patrimônios"]
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          description: "Código de identificação (Formatos: NNNNNN ou AAAA-NNNNNN)"
+          schema:
+            type: string
+            pattern: "^([A-Z]{4}-)?\\d{6}$"
+      responses:
+        "200":
+          description: "Patrimônio encontrado"
+        "404":
+          description: "Patrimônio não localizado no sistema"
+    put:
+      summary: "Atualizar dados do patrimônio"
+      operationId: "atualizarPatrimonio"
+      tags: ["Patrimônios"]
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^([A-Z]{4}-)?\\d{6}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatrimonioInput"
+      responses:
+        "200":
+          description: "Patrimônio atualizado"
+        "400":
+          description: "Dados inválidos"
+        "404":
+          description: "Patrimônio não localizado"
+    delete:
+      summary: "Baixar/Remover patrimônio"
+      operationId: "deletarPatrimonio"
+      tags: ["Patrimônios"]
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^([A-Z]{4}-)?\\d{6}$"
+      responses:
+        "204":
+          description: "Baixa realizada com sucesso"
+        "404":
+          description: "Patrimônio não localizado"
+
+components:
+  schemas:
+    PatrimonioInput:
+      type: object
+      required: [codigo, descricao, estadoConservacao]
+      properties:
+        codigo:
+          type: string
+          pattern: "^([A-Z]{4}-)?\\d{6}$"
+          example: "MESA-123456"
+          description: "Padrão validador de máscara do patrimônio"
+        descricao:
+          type: string
+          example: "Mesa de escritório em L"
+        estadoConservacao:
+          type: string
+          enum: [BOM, REGULAR, INSERVIVEL]
+          example: "BOM"
