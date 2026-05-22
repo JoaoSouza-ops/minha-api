@@ -15,6 +15,12 @@ paths:
       responses:
         "200":
           description: "Lista de patrimônios"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PatrimonioOutput"
     post:
       summary: "Cadastrar patrimônio"
       operationId: "criarPatrimonio"
@@ -28,8 +34,16 @@ paths:
       responses:
         "201":
           description: "Patrimônio registrado com sucesso"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatrimonioOutput"
         "400":
           description: "Dados de entrada inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroValidacao"
 
   /patrimonios/{codigo}:
     get:
@@ -47,8 +61,16 @@ paths:
       responses:
         "200":
           description: "Patrimônio encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatrimonioOutput"
         "404":
           description: "Patrimônio não localizado no sistema"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroNotFound"
     put:
       summary: "Atualizar dados do patrimônio"
       operationId: "atualizarPatrimonio"
@@ -69,10 +91,22 @@ paths:
       responses:
         "200":
           description: "Patrimônio atualizado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatrimonioOutput"
         "400":
           description: "Dados inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroValidacao"
         "404":
           description: "Patrimônio não localizado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroNotFound"
     delete:
       summary: "Baixar/Remover patrimônio"
       operationId: "deletarPatrimonio"
@@ -89,6 +123,10 @@ paths:
           description: "Baixa realizada com sucesso"
         "404":
           description: "Patrimônio não localizado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroNotFound"
 
 components:
   schemas:
@@ -108,3 +146,52 @@ components:
           type: string
           enum: [BOM, REGULAR, INSERVIVEL]
           example: "BOM"
+
+    PatrimonioOutput:
+      type: object
+      required: [codigo, descricao, estadoConservacao]
+      properties:
+        codigo:
+          type: string
+          pattern: "^([A-Z]{4}-)?\\d{6}$"
+          example: "MESA-123456"
+          description: "Padrão validador de máscara do patrimônio"
+        descricao:
+          type: string
+          example: "Mesa de escritório em L"
+        estadoConservacao:
+          type: string
+          enum: [BOM, REGULAR, INSERVIVEL]
+          example: "BOM"
+        criadoEm:
+          type: string
+          format: date-time
+          example: "2025-05-21T10:30:00Z"
+          description: "Data e hora de registro do patrimônio"
+        atualizadoEm:
+          type: string
+          format: date-time
+          example: "2025-05-21T10:30:00Z"
+          description: "Data e hora da última atualização"
+
+    ErroValidacao:
+      type: object
+      required: [erro, mensagem]
+      properties:
+        erro:
+          type: string
+          example: "DADOS_INVALIDOS"
+        mensagem:
+          type: string
+          example: "O campo 'codigo' não corresponde ao padrão esperado."
+
+    ErroNotFound:
+      type: object
+      required: [erro, mensagem]
+      properties:
+        erro:
+          type: string
+          example: "NAO_ENCONTRADO"
+        mensagem:
+          type: string
+          example: "Patrimônio com código 'MESA-123456' não localizado."
