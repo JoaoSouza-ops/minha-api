@@ -1,16 +1,13 @@
-# Nome exibido na aba "Actions" do GitHub
 name: CI/CD — API Almoxarifado
 
-# QUANDO executar: a cada push na branch de desenvolvimento
 on:
   push:
-    branches: [develop]
-  workflow_dispatch: # permite rodar manualmente
+    branches: [develop, main]
+  workflow_dispatch:
 
 jobs:
-  # ─── JOB 1: Validar o contrato ───
   validar:
-    runs-on: ubuntu-latest # VM Linux gratuita
+    runs-on: ubuntu-latest
 
     steps:
       - name: Baixar o código
@@ -21,12 +18,9 @@ jobs:
         with:
           node-version: "20"
 
-      # Se o Spectral encontrar erros estruturais → pipeline PARA!
       - name: Validar OpenAPI com Spectral
         run: npx --yes @stoplight/spectral-cli@6 lint openapi.yaml --ruleset .spectral.yaml
 
-  # ─── JOB 2: Publicar documentação ───
-  # Só roda se o job "validar" passou!
   publicar-docs:
     needs: validar
     runs-on: ubuntu-latest
